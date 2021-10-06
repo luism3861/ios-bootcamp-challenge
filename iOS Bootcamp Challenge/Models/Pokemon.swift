@@ -79,7 +79,6 @@ struct Pokemon: Decodable, Equatable {
         let officialArtWork = try other.nestedContainer(keyedBy: CodingKeys.self, forKey: .officialArtwork)
         self.image = try? officialArtWork.decode(String.self, forKey: .frontDefault)
 
-        // TODO: Decode list of types & abilities
         let abilities = try container.decode([Abilities].self, forKey: .abilities)
         let arrayAbility = abilities.map{$0.ability.name}
         let types = try container.decode([TypesPokemon].self,forKey: .types)
