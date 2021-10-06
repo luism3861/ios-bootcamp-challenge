@@ -10,6 +10,7 @@ import SVProgressHUD
 
 class ListViewController: UICollectionViewController {
 
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
     private var pokemons: [Pokemon] = []
     private var resultPokemons: [Pokemon] = []
 
@@ -24,17 +25,12 @@ class ListViewController: UICollectionViewController {
         return searchController
     }()
 
-    private var isFirstLauch: Bool = true
-
-    // TODO: Add a loading indicator when the app first launches and has no pokemons
-
-    private var shouldShowLoader: Bool = true
-
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setup()
         setupUI()
+        
     }
 
     // MARK: Setup
@@ -68,6 +64,8 @@ class ListViewController: UICollectionViewController {
         refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
         collectionView.refreshControl = refreshControl
         collectionView.sendSubviewToBack(refreshControl)
+        activityIndicator.startAnimating()
+        activityIndicator.hidesWhenStopped = true
     }
 
     // MARK: - UISearchViewController
@@ -103,21 +101,16 @@ class ListViewController: UICollectionViewController {
 
     // MARK: - Navigation
 
-    // TODO: Handle navigation to detail view controller
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath){
         let detailViewController = DetailViewController()
         detailViewController.pokemon = pokemons[indexPath.row]
-        self.navigationController?.pushViewController(detailViewController, animated: true)
+        self.present(detailViewController,animated: true)
     }
     
     // MARK: - UI Hooks
 
     @objc func refresh() {
-        shouldShowLoader = true
-
         var pokemons: [Pokemon] = []
-
-        // TODO: Wait for all requests to finish before updating the collection view
 
         PokeAPI.shared.get(url: "pokemon?limit=30", onCompletion: { (list: PokemonList?, _) in
             guard let list = list else { return }
@@ -126,15 +119,16 @@ class ListViewController: UICollectionViewController {
                     guard let pokemon = pokemon else { return }
                     pokemons.append(pokemon)
                     self.pokemons = pokemons
-                    self.didRefresh()
+                    if self.pokemons.count == list.results.count{
+                        self.didRefresh()
+                    }
                 })
             }
         })
     }
 
     private func didRefresh() {
-        shouldShowLoader = false
-
+        activityIndicator.stopAnimating()
         guard
             let collectionView = collectionView,
             let refreshControl = collectionView.refreshControl
