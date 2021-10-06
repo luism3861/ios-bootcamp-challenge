@@ -27,6 +27,23 @@ enum PokemonType: String, Decodable, CaseIterable, Identifiable {
 
 }
 
+struct Abilities: Decodable {
+    let ability: Ability
+}
+
+struct Ability: Decodable {
+    let name: String
+}
+
+struct TypesPokemon: Decodable {
+    let type: TypePokemon
+}
+
+struct TypePokemon: Decodable{
+    let name: String
+}
+
+
 struct Pokemon: Decodable, Equatable {
 
     let id: Int
@@ -63,9 +80,12 @@ struct Pokemon: Decodable, Equatable {
         self.image = try? officialArtWork.decode(String.self, forKey: .frontDefault)
 
         // TODO: Decode list of types & abilities
-
-        self.types = []
-        self.abilities = []
+        let abilities = try container.decode([Abilities].self, forKey: .abilities)
+        let arrayAbility = abilities.map{$0.ability.name}
+        let types = try container.decode([TypesPokemon].self,forKey: .types)
+        let arrayTypes = types.map{$0.type.name}
+        self.abilities = arrayAbility
+        self.types = arrayTypes
 
         self.weight = try container.decode(Float.self, forKey: .weight)
         self.baseExperience = try container.decode(Int.self, forKey: .baseExperience)

@@ -52,7 +52,6 @@ class ListViewController: UICollectionViewController {
         // Set up the searchController parameters.
         navigationItem.searchController = searchController
         definesPresentationContext = true
-
         refresh()
     }
 
@@ -98,14 +97,19 @@ class ListViewController: UICollectionViewController {
         guard
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PokeCell.identifier, for: indexPath) as? PokeCell
         else { preconditionFailure("Failed to load collection view cell") }
-        cell.pokemon = resultPokemons[indexPath.item]
+        cell.pokemon = pokemons[indexPath.item]
         return cell
     }
 
     // MARK: - Navigation
 
     // TODO: Handle navigation to detail view controller
-
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath){
+        let detailViewController = DetailViewController()
+        detailViewController.pokemon = pokemons[indexPath.row]
+        self.navigationController?.pushViewController(detailViewController, animated: true)
+    }
+    
     // MARK: - UI Hooks
 
     @objc func refresh() {
